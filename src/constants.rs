@@ -1,0 +1,2 @@
+XWIDTH = 8;
+YWIDTH = 8;
