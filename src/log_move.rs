@@ -1,41 +1,35 @@
 use crate::constants as C;
 
-struct moveset {
-    alg : String, 
+// struct moveset {
+//     alg : String, 
+// }
+
+pub struct Log {
+    // log : Vec<moveset>, 
+    pub log: C::KvTable,
+    pub num_moves : usize,
 }
 
-pub struct log {
-    log : Vec<moveset>, 
-    num_moves : usize
-}
-
-pub fn new_log (&log: moveset) {
-    let m : log;
-    m.loc = Vec::new();
-    m.num_moves = 0; 
-    m
-}
-
-pub fn add_move_to_log (&log: log, &alg: String) {
-    log.log.push(alg);
-    log.num_moves += 1
-}
-
-pub fn print_log (&log: log) {
-    for (index, movement) in log.log.iter.enumerate() {
-        println!("move {i}: {}", index, movement);
+impl Log {
+    pub fn new_log () -> Self {
+        Log {
+            log : C::KvTable::create_kv(),
+            num_moves : 0,
+        }
     }
-}
 
-// unit tests 
+    pub fn add_move_to_log (&mut self, alg: &str) {
+        C::KvTable::push_new(self.num_moves.to_string(), alg.to_string(), &mut self.log);
+        self.num_moves += 1
+    }
 
-#[cfg(test)] 
+    pub fn movesearch (&self, m: usize) -> Option<&String>{
+        C::KvTable::find_by_key(m.to_string(), &self.log)
+    }
 
-mod tests {
-    use super::*; 
-
-    #[test]
-    fn test_new() {
-        assert_eq!()
+    pub fn print_log (&self) {
+        for (index, movement) in self.log.tab.iter().enumerate() {
+            println!("move {}: {}", index, movement.value);
+        }
     }
 }
