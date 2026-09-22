@@ -24,7 +24,7 @@ impl Log {
     }
 
     pub fn movesearch (&self, m: usize) -> Option<&String>{
-        C::KvTable::find_by_key(m.to_string(), &self.log)
+        C::KvTable::find_by_key(&(m.to_string()), &self.log)
     }
 
     pub fn print_log (&self) {
