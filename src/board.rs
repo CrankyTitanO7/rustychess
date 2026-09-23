@@ -4,9 +4,9 @@ use crate::constants as C;
 use crate::log_move as L;
 use crate::pieces as P;
 
-struct Board { 
-    board : [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH], 
-    log : L::Log
+pub struct Board { 
+    pub board : [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH], 
+    pub log : L::Log
 }
 
 fn fresh_constructor() -> [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] {
@@ -47,7 +47,7 @@ fn fresh_constructor() -> [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] {
 }
 
 impl Board {
-    fn new_board () -> Board{
+    pub fn new_board () -> Board{
         Board {
             board : fresh_constructor(), 
             log : L::Log::new_log()

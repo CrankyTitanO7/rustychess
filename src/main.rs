@@ -8,5 +8,6 @@ mod pieces;
 
 
 fn main() {
-    
+    let b = board::Board::new_board();
+    display::display_board(b); 
 }
