@@ -12,10 +12,10 @@ struct Board {
 fn fresh_constructor() -> [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] {
     let mut m: [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] =
         std::array::from_fn(|_| std::array::from_fn(|_| None));
-    for y in [1, C::YWIDTH - 1] {
+    for y in [1, C::YWIDTH - 2] {
         let is_white = y == 1; // `constants.rs:4`: `false=white`
         for x in 0..C::XWIDTH {
-            m[y][x] = Some(P::Piece::inst("P", x as u8, y as u8, is_white));
+            m[x][y] = Some(P::Piece::inst("P", x as u8, y as u8, is_white));
         }
     }
     for x in 0..C::XWIDTH/2 {
@@ -29,13 +29,19 @@ fn fresh_constructor() -> [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] {
         for y in [0, C::YWIDTH]{
             let is_white = y == 0;
             for x1 in [0 + x, C::XWIDTH - x] {
-                m[y][x1] = Some(P::Piece::inst(ptm, x as u8, y as u8, is_white));
+                m[x1][y] = Some(P::Piece::inst(ptm, x as u8, y as u8, is_white));
             } 
         }
         
     }
 
-    // TODO: replace 1 queen on each side with one king
+    for y in [0, C::YWIDTH] {
+        let kpos = C::XWIDTH/2;
+        let is_white = y == 0;
+        for y in [0, C::YWIDTH-1] {
+            m[kpos][y] = Some(P::Piece::inst("K", kpos as u8, y as u8, is_white));
+        }
+    }
     
     m
 }
