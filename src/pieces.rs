@@ -4,7 +4,7 @@ pub struct Piece {
     pub name_long: String, 
     pub name_short: String, 
     pub symbol : String, 
-    pub color: bool, // white is 0
+    pub color: bool, // false = white, true = black
     pub locx : u8, 
     pub locy: u8
 }
@@ -58,7 +58,7 @@ pub static PIECE_LONG_LOOKUP_TABLE: Lazy<C::KvTable> = Lazy::new(|| {
     table // Return the initialized table
 });
 
-pub static PIECE_short_LOOKUP_TABLE: Lazy<C::KvTable> = Lazy::new(|| {
+pub static PIECE_SHORT_LOOKUP_TABLE: Lazy<C::KvTable> = Lazy::new(|| {
     let mut table = C::KvTable::create_kv(); 
     for i in 0..C::UNIQUE_PIECES {
         C::KvTable::push_new(C::FUL[i].to_string(), C::ALG[i].to_string(), &mut table); 

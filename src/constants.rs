@@ -1,53 +1,43 @@
 pub const XWIDTH:usize = 8;
 pub const YWIDTH:usize = 8;
 
-// bool:  0 = white
+// bool: false = white, true = black
 
-pub const UNIQUE_PIECES:usize = 5; 
-pub static ALG : [&'static str; 5] = ["P", "N", "B", "Q", "K"]; 
-pub static SYM_BL: [&str; 5] = ["♟", "♞", "♝", "♜", "♛"]; 
-pub static SYM_WH: [&str; 5] = ["♙", "♘", "♗", "♖", "♕"];
+pub const UNIQUE_PIECES:usize = 6;
+pub static ALG : [&'static str; 6] = ["P", "N", "B", "R", "Q", "K"];
+pub static SYM_BL: [&str; 6] = ["♟", "♞", "♝", "♜", "♛", "♚"];
+pub static SYM_WH: [&str; 6] = ["♙", "♘", "♗", "♖", "♕", "♔"];
 
-pub static FUL : [&'static str; 5] = ["pawn", "knight", "bishop", "queen", "king"]; 
-
-use std::hash::{BuildHasher, Hash, Hasher, RandomState};
+pub static FUL : [&'static str; 6] = ["pawn", "knight", "bishop", "rook", "queen", "king"];
 
 pub struct Kv {
-    pub key : u64, 
-    pub value : String 
+    pub key : String,
+    pub value : String
 }
 
-pub struct KvTable <B: BuildHasher = RandomState> {
-    hash_builder : B,
+pub struct KvTable {
     pub tab : Vec<Kv>
 }
 
 impl KvTable {
-    pub fn create_kv () -> KvTable<RandomState>{
+    pub fn create_kv () -> KvTable{
         KvTable {
-            hash_builder: RandomState::default(), 
             tab : Vec::new()
         }
     }
 
-    pub fn push_new <B: BuildHasher> (key:String, val:String, k: &mut KvTable<B>) {
-        let mut hasher = k.hash_builder.build_hasher();
-        key.hash(&mut hasher); 
-
-        let newkey = hasher.finish();
-        let newent = Kv {key:newkey, value: val} ;
+    pub fn push_new (key:String, val:String, k: &mut KvTable) {
+        let newent = Kv {key, value: val} ;
         k.tab.push(newent);
 
     }
 
-    pub fn find_by_key<'a, B: BuildHasher>(key: &String, table: &'a KvTable<B>) -> Option<&'a String> {
-        let mut hasher = table.hash_builder.build_hasher();
-        key.hash(&mut hasher);
-        let hashed_key = hasher.finish();
-
-        // Search the linear vector for the matching numeric hash
+    pub fn find_by_key<'a>(key: &String, table: &'a KvTable) -> Option<&'a String> {
+        // Compare string keys directly: the previous implementation compared only
+        // truncated u64 hashes produced with a per-table RandomState, which is
+        // fragile (random seeds, hash collisions). Direct comparison is exact.
         for item in &table.tab {
-            if item.key == hashed_key {
+            if item.key == *key {
                 return Some(&item.value);
             }
         }

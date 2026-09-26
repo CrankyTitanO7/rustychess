@@ -12,37 +12,23 @@ pub struct Board {
 fn fresh_constructor() -> [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] {
     let mut m: [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] =
         std::array::from_fn(|_| std::array::from_fn(|_| None));
+    // Pawns: white (false) on rank y=1, black (true) on rank y=YWIDTH-2.
+    // Note `constants.rs:4`: `false=white`, `true=black`.
     for y in [1, C::YWIDTH - 2] {
-        let is_white = y == 1; // `constants.rs:4`: `false=white`
+        let is_black = y == C::YWIDTH - 2;
         for x in 0..C::XWIDTH {
-            m[x][y] = Some(P::Piece::inst("P", x as u8, y as u8, is_white));
+            m[y][x] = Some(P::Piece::inst("P", x as u8, y as u8, is_black));
         }
     }
-    for x in 0..C::XWIDTH/2 {
-        let ptm = match x%4 {
-            0 => "R",
-            1 => "N",
-            2 => "B", 
-            3 => "Q",
-            _ => "you win a fields medal"
-        }; 
-        for y in [0, C::YWIDTH]{
-            let is_white = y == 0;
-            for x1 in [0 + x, C::XWIDTH - x] {
-                m[x1][y] = Some(P::Piece::inst(ptm, x as u8, y as u8, is_white));
-            } 
+    // Back rank: R N B Q K B N R on y=0 (white) and y=YWIDTH-1 (black).
+    let back_rank = ["R", "N", "B", "Q", "K", "B", "N", "R"];
+    for y in [0, C::YWIDTH - 1] {
+        let is_black = y != 0;
+        for x in 0..C::XWIDTH {
+            m[y][x] = Some(P::Piece::inst(back_rank[x], x as u8, y as u8, is_black));
         }
-        
     }
 
-    for y in [0, C::YWIDTH] {
-        let kpos = C::XWIDTH/2;
-        let is_white = y == 0;
-        for y in [0, C::YWIDTH-1] {
-            m[kpos][y] = Some(P::Piece::inst("K", kpos as u8, y as u8, is_white));
-        }
-    }
-    
     m
 }
 
