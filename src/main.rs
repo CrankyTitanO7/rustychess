@@ -7,6 +7,7 @@ mod log_move;
 mod pieces;
 
 mod menu;
+mod gameloops;
 
 
 // use std::io::{self, stdout};

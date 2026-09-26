@@ -15,6 +15,8 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap},
 };
 
+use crate::gameloops;
+
 type Term = Terminal<CrosstermBackend<std::io::Stdout>>;
 type MenuResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -27,7 +29,6 @@ const START_ITEMS: &[&str] = &["New Game", "Replay Saved Game", "Settings", "Qui
 const NEWGAME_TITLE: &str = "rustychess: new game ?";
 const NEWGAME_ITEMS: &[&str] = &["PvP", "PvC", "CvC", "Back to Main", "Quit"];
 const NEWGAME_MESSAGES: &[&str] = &[
-    "Starting Player vs Player...\n\n(Gameplay not wired up yet. Press any key.)",
     "Starting Player vs Computer...\n\n(Gameplay not wired up yet. Press any key.)",
     "Starting Computer vs Computer...\n\n(Gameplay not wired up yet. Press any key.)",
 ];
@@ -149,9 +150,16 @@ fn show_message(terminal: &mut Term, title: &str, message: &str) -> MenuResult<(
 fn run_new_game_menu(terminal: &mut Term) -> MenuResult<SubMenuOutcome> {
     loop {
         match run_select_menu(terminal, NEWGAME_TITLE, NEWGAME_ITEMS)? {
-            // PvP / PvC / CvC: acknowledge, then stay in this menu.
-            Some(i @ 0..=2) => {
-                let message = NEWGAME_MESSAGES.get(i).copied().unwrap_or("Starting...");
+            // PvP: hand the terminal to the PvP game loop, then stay in this menu.
+            Some(0) => {
+                gameloops::pvp(terminal)?;
+            }
+            // PvC / CvC: acknowledge, then stay in this menu.
+            Some(i @ 1..=2) => {
+                let message = NEWGAME_MESSAGES
+                    .get(i - 1)
+                    .copied()
+                    .unwrap_or("Starting...");
                 show_message(terminal, NEWGAME_TITLE, message)?;
             }
             // Back to Main (or q/Esc): return to the caller.

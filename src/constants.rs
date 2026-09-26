@@ -5,8 +5,8 @@ pub const YWIDTH:usize = 8;
 
 pub const UNIQUE_PIECES:usize = 6;
 pub static ALG : [&'static str; 6] = ["P", "N", "B", "R", "Q", "K"];
-pub static SYM_BL: [&str; 6] = ["♟", "♞", "♝", "♜", "♛", "♚"];
-pub static SYM_WH: [&str; 6] = ["♙", "♘", "♗", "♖", "♕", "♔"];
+pub static SYM_BL: [&str; 6] = ["♙", "♘", "♗", "♖", "♕", "♔"];
+pub static SYM_WH: [&str; 6] = ["♟", "♞", "♝", "♜", "♛", "♚"];
 
 pub static FUL : [&'static str; 6] = ["pawn", "knight", "bishop", "rook", "queen", "king"];
 
