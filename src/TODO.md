@@ -49,14 +49,14 @@ Full status: `cargo test 2>&1 | grep -E "ignored|ok$" | head`.
 ### `src/mv.rs` — pure value types (start here)
 
 - [x] `Coord::new`, `Move::new/quiet/is_promotion` — done. Learn: `Self`, struct init shorthand.
-- [ ] `Coord::is_valid() -> bool`
+- [x] `Coord::is_valid() -> bool`
   What: `x < 8 && y < 8` via `constants::XWIDTH/YWIDTH`.
   Learn: `&self` borrow (no move), boolean expr as return (no `return` needed).
   Hint: `self.x < C::XWIDTH as u8`.
-- [ ] `Coord::to_algebraic() -> String`
+- [x] `Coord::to_algebraic() -> String`
   What: `(4,1)->"e2"`. Formula: `(b'a'+x) as char` + `(y+1).to_string()`.
   Learn: `format!`, byte→char cast, owned `String` vs borrowed `&str`.
-- [ ] `Coord::from_algebraic(s: &str) -> Option<Self>`
+- [x] `Coord::from_algebraic(s: &str) -> Option<Self>`
   What: `"e2"->Some((4,1))`, else `None`. Check len==2, file `a-h`, rank `1-8`.
   Learn: `Option`, `chars().nth()`, early `return None`, `?` on `Option`.
   Pitfall: `s.len()` is bytes — fine for ASCII, note UTF-8 caveat.

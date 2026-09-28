@@ -148,12 +148,12 @@ impl Board {
 }
 
 /// `x,y` (0-based) -> `"e2"`.
-fn sq_name(x: usize, y: usize) -> String {
+pub fn sq_name(x: usize, y: usize) -> String {
     format!("{}{}", (b'a' + x as u8) as char, y + 1)
 }
 
 /// `"e2"` -> `(x,y)`. File `a-h` maps to `x 0-7`, rank `1-8` to `y 0-7`.
-fn parse_square(s: &str) -> Option<(usize, usize)> {
+pub fn parse_square(s: &str) -> Option<(usize, usize)> {
     let mut chars = s.chars();
     let file = chars.next()?;
     let rank = chars.next()?;

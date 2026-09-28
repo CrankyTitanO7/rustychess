@@ -11,6 +11,9 @@
 //   `constants.rs:4`; move types stay color-agnostic.
 // - UCI shape is `e2e4` / `e7e8q` (promotion lowercase trailing char).
 
+use crate::constants as C;
+use crate::board as B;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Coord {
     pub x: u8,
@@ -43,8 +46,7 @@ impl Coord {
     /// Hint: one-liner; used by engine to guard array indexing.
     pub fn is_valid(&self) -> bool {
         // TODO: implement bounds check; stub returns garbage so it compiles.
-        let _ = self;
-        false
+        if self.x as usize >= C::XWIDTH || self.y as usize >= C::YWIDTH  { false } else { true }
     }
 
     /// Inputs: `self`.
@@ -53,7 +55,8 @@ impl Coord {
     /// Hint: see `board.rs` private `sq_name` for reference logic.
     pub fn to_algebraic(&self) -> String {
         // TODO: format file/rank; stub returns empty so it compiles.
-        String::new()
+        // String::new()
+        B::sq_name(self.x.into(), self.y.into())
     }
 
     /// Inputs: square text like `"e2"`.
@@ -62,8 +65,16 @@ impl Coord {
     /// Hint: see `board.rs` private `parse_square` for reference logic.
     pub fn from_algebraic(s: &str) -> Option<Self> {
         // TODO: implement; stub returns None so it compiles.
-        let _ = s;
-        None
+        match B::parse_square(s) {
+            Some ((x, y)) => {
+                Some (Coord {
+                    x: x.try_into().unwrap(), y: y.try_into().unwrap()
+                    // panics if the number is too big
+                })
+            }, 
+            _ => None
+        }
+        
     }
 }
 
@@ -134,7 +145,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement Coord::is_valid"]
+    // #[ignore = "TODO: implement Coord::is_valid"]
     fn coord_is_valid_startpos_corners() {
         assert!(Coord::new(0, 0).is_valid());
         assert!(Coord::new(7, 7).is_valid());
@@ -143,7 +154,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement Coord::to_algebraic"]
+    // #[ignore = "TODO: implement Coord::to_algebraic"]
     fn coord_to_algebraic_e2() {
         assert_eq!(Coord::new(4, 1).to_algebraic(), "e2");
         assert_eq!(Coord::new(0, 0).to_algebraic(), "a1");
@@ -151,7 +162,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement Coord::from_algebraic"]
+    // #[ignore = "TODO: implement Coord::from_algebraic"]
     fn coord_from_algebraic_roundtrip() {
         assert_eq!(Coord::from_algebraic("e2"), Some(Coord::new(4, 1)));
         assert_eq!(Coord::from_algebraic("a1"), Some(Coord::new(0, 0)));
