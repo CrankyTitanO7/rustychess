@@ -9,6 +9,13 @@ mod pieces;
 mod menu;
 mod gameloops;
 
+// Engine / notation / AI scaffolding (stubs; see each file's TODOs).
+mod ai;
+mod engine;
+mod game_state;
+mod mv;
+mod san;
+
 
 // use std::io::{self, stdout};
 use std::io::{ stdout};

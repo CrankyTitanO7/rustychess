@@ -1,12 +1,17 @@
 // file that defines the board struct, and its methods
 
 use crate::constants as C;
+use crate::game_state as GS;
 use crate::log_move as L;
 use crate::pieces as P;
 
-pub struct Board { 
-    pub board : [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH], 
-    pub log : L::Log
+pub struct Board {
+    pub board : [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH],
+    pub log : L::Log,
+    /// Rules state (side to move, castling, e.p., clocks).
+    /// TODO(engine): migrate `turn_is_black` to `state.turn_black` so loaded
+    /// positions/undos work; `log.num_moves` stays as move history only.
+    pub state : GS::GameState,
 }
 
 fn fresh_constructor() -> [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] {
@@ -35,8 +40,9 @@ fn fresh_constructor() -> [[Option<P::Piece>; C::XWIDTH]; C::YWIDTH] {
 impl Board {
     pub fn new_board () -> Board{
         Board {
-            board : fresh_constructor(), 
-            log : L::Log::new_log()
+            board : fresh_constructor(),
+            log : L::Log::new_log(),
+            state : GS::GameState::initial(),
         }
     }
 
