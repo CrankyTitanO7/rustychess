@@ -60,10 +60,10 @@ Full status: `cargo test 2>&1 | grep -E "ignored|ok$" | head`.
   What: `"e2"->Some((4,1))`, else `None`. Check len==2, file `a-h`, rank `1-8`.
   Learn: `Option`, `chars().nth()`, early `return None`, `?` on `Option`.
   Pitfall: `s.len()` is bytes — fine for ASCII, note UTF-8 caveat.
-- [ ] `Move::to_uci() -> String`
+- [x] `Move::to_uci() -> String`
   What: `"e2e4"`, promo lowercased (`Some('Q')->"q"`).
   Learn: method calls on fields (`self.from.to_algebraic()`), `match promotion`.
-- [ ] `Move::from_uci(s) -> Option<Self>`
+- [x] `Move::from_uci(s) -> Option<Self>`
   What: len 4/5, two squares + optional `NBRQ`. Flags `false`.
   Learn: string slicing `[0..2]` (ASCII-safe), `to_ascii_uppercase`, validation.
 

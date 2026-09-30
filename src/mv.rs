@@ -13,6 +13,7 @@
 
 use crate::constants as C;
 use crate::board as B;
+use crate::game_state::CastlingRights;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Coord {
@@ -31,6 +32,13 @@ pub struct Move {
     /// `true` when the pawn captures en passant (destination is empty).
     pub is_en_passant: bool,
 }
+
+pub static CASTLESTRINGS: [& str; 4]= [
+    "e1g1", 
+    "e1c1",
+    "e8g8",
+    "e8c8"
+]; 
 
 impl Coord {
     /// Inputs: 0-based file `x`, rank `y`.
@@ -118,7 +126,14 @@ impl Move {
     /// Hint: depends on `Coord::to_algebraic`.
     pub fn to_uci(&self) -> String {
         // TODO: implement; stub returns empty so it compiles.
-        String::new()
+        let from = self.from.to_algebraic(); 
+        let to = self.to.to_algebraic();
+        let prom = match &self.promotion {
+            Some(promo)  => promo.to_lowercase().to_string(),
+            None => String::new()
+        }
+        .to_lowercase().to_string();
+        from + &to + &prom
     }
 
     /// Inputs: UCI text (`"e2e4"`, `"e7e8q"`, `"e7e8=Q"` variant optional).
@@ -128,9 +143,27 @@ impl Move {
     ///   (castling/e.p. are resolved by engine/SAN layers, not UCI).
     /// Hint: mirror `board.rs::parse_move_input` core-4-chars logic.
     pub fn from_uci(s: &str) -> Option<Self> {
-        // TODO: implement; stub returns None so it compiles.
-        let _ = s;
-        None
+        let res = B::parse_move_input(s);
+        if let Ok(((from_x, from_y), (to_x, to_y), promotion_str)) = res {
+            let promotion: Option<char> = promotion_str.and_then(|s| s.to_uppercase().chars().next());
+            let is_castle = CASTLESTRINGS.contains(&s);
+            let is_en_passant = false;
+            Some(Self {
+                from: Coord {
+                    x: from_x as u8,
+                    y: from_y as u8,
+                },
+                to : Coord {
+                    x:to_x as u8, 
+                    y: to_y as u8
+                }, 
+                promotion, 
+                is_castle, 
+                is_en_passant
+            })
+        } else {
+            None
+        }
     }
 }
 
@@ -191,7 +224,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement Move::to_uci"]
+    // #[ignore = "TODO: implement Move::to_uci"]
     fn move_to_uci_shapes() {
         let m = Move::quiet(Coord::new(4, 1), Coord::new(4, 3));
         assert_eq!(m.to_uci(), "e2e4");
@@ -200,7 +233,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement Move::from_uci"]
+    // #[ignore = "TODO: implement Move::from_uci"]
     fn move_from_uci_parses() {
         assert_eq!(
             Move::from_uci("e2e4"),

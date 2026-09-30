@@ -176,7 +176,7 @@ pub fn parse_square(s: &str) -> Option<(usize, usize)> {
 ///
 /// Accepts `e2e4`, `e2 e4`, `e2-e4`, `e2xe4`, plus `=Q` / trailing `Q`
 /// promotion (`e7e8=Q`, `e7e8Q`). Promotion must be one of `N,B,R,Q`.
-fn parse_move_input(raw: &str) -> Result<((usize, usize), (usize, usize), Option<String>), String> {
+pub fn parse_move_input(raw: &str) -> Result<((usize, usize), (usize, usize), Option<String>), String> {
     // Normalise: lowercase, drop whitespace and `-`/`x` separators.
     // (`x`/`-` never occur inside a square name, so they must be separators.)
     let mut s: String = raw
