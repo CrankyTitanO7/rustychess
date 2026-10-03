@@ -77,22 +77,48 @@ impl CastlingRights {
     /// Hint: pure getter; 4-way branch.
     pub fn can_castle(&self, black: bool, kingside: bool) -> bool {
         // TODO: return the matching field; stub returns garbage.
-        let _ = (black, kingside);
-        false
+        match black {
+            true => {
+                match kingside {
+                    true => {
+                        if self.black_kingside {true}
+                        else {false}
+                    }
+                    false => {
+                        if self.black_queenside {true}
+                        else {false}
+                    }
+                }
+            }
+            false => {
+                match kingside {
+                    true => {
+                        if self.black_kingside {true}
+                        else {false}
+                    }
+                    false => {
+                        if self.black_queenside {true}
+                        else {false}
+                    }
+                }
+            }
+        }
     }
 
     /// Inputs: `black` side. Effect: clears ONLY that side's kingside flag.
     /// TODO: `if black { self.black_kingside = false } else { ... }`.
     pub fn clear_kingside(&mut self, black: bool) {
         // TODO: implement; stub does nothing so it compiles.
-        let _ = black;
+        // let _ = black;
+        if black {self.black_kingside = false} else {self.white_kingside = false}
     }
 
     /// Inputs: `black` side. Effect: clears ONLY that side's queenside flag.
     /// TODO: mirror `clear_kingside`.
     pub fn clear_queenside(&mut self, black: bool) {
         // TODO: implement; stub does nothing so it compiles.
-        let _ = black;
+        if black {self.black_queenside = false} else {self.white_queenside = false}
+        // let _ = black;
     }
 
     /// Inputs: `black` side. Effect: clears BOTH flags for that color.
@@ -100,7 +126,9 @@ impl CastlingRights {
     /// Hint: used when that side's king moves.
     pub fn clear_all_for(&mut self, black: bool) {
         // TODO: implement; stub does nothing so it compiles.
-        let _ = black;
+        if black {(self.black_kingside , self.black_queenside) = (false, false)}
+        else {(self.white_kingside , self.white_queenside) = (false, false)}
+        // let _ = black;
     }
 
     /// Inputs: moving piece short name (`"K"`/`"R"`), from-square, captured
@@ -118,7 +146,36 @@ impl CastlingRights {
         capture_square: Option<(u8, u8)>,
     ) {
         // TODO: implement rights stripping; stub does nothing so it compiles.
-        let _ = (mover_short, mover_black, from, captured_short, capture_square);
+        // let _ = (mover_short, mover_black, from, captured_short, capture_square);
+
+        if mover_short == "K" {
+            // immediate disqualify if your king pieces move.
+            {self.clear_all_for(mover_black);}
+        } else {
+            // define rook squares
+            const A1:(u8, u8) = (0, 0); 
+            const A8:(u8, u8) = (7, 0);
+            const H1:(u8, u8)= (0, 7);
+            const H8:(u8, u8) = (7, 7);
+
+            if mover_short == "R" {
+                // if you moved your rook from a starting position
+                match from {
+                    A1 | H1=>{ self.clear_queenside(mover_black) }, 
+                    A8 | H8=>{ self.clear_kingside(mover_black) }, 
+                    _ => {} // otherwise do nothing
+                }
+            }
+
+            if captured_short == Some("R") {
+                // if your rook has been captured
+                match capture_square.unwrap() {
+                    A1 | H1=>{ self.clear_queenside(mover_black) }, 
+                    A8 | H8=>{ self.clear_kingside(mover_black) }, 
+                    _ => {} // otherwise do nothing
+                }
+            }
+        }
     }
 }
 
@@ -171,31 +228,36 @@ impl GameState {
     ///   caller — document choice in engine.)
     /// Hint: fullmove starts at 1 and increments after Black's move.
     pub fn advance_turn(&mut self) {
-        // TODO: implement; stub does nothing so it compiles.
+        if self.turn_is_black() {self.fullmove_number += 1}
+        self.turn_black = !self.turn_black;
     }
 
     /// Inputs: `&mut self`, target `(x,y)`. Effect: set e.p. square.
     /// TODO: `self.en_passant = Some(target)` (one-liner, already done shape).
     pub fn set_en_passant(&mut self, target: (u8, u8)) {
-        let _ = target;
+        // let _ = target;
+        self.en_passant = Some(target);
         // TODO: store target; stub does nothing so it compiles.
     }
 
     /// Inputs: `&mut self`. Effect: clear e.p. square.
     /// TODO: `self.en_passant = None`.
     pub fn clear_en_passant(&mut self) {
+        self.en_passant = None;
         // TODO: implement; stub does nothing so it compiles.
     }
 
     /// Inputs: `&mut self`. Effect: reset 50-move clock to 0.
     /// TODO: called on pawn move or capture.
     pub fn reset_halfmove(&mut self) {
+        self.halfmove_clock = 0;
         // TODO: implement; stub does nothing so it compiles.
     }
 
     /// Inputs: `&mut self`. Effect: increment 50-move clock by 1.
     /// TODO: called on quiet non-pawn moves.
     pub fn bump_halfmove(&mut self) {
+        self.halfmove_clock += 1;
         // TODO: implement; stub does nothing so it compiles.
     }
 }
@@ -223,7 +285,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement CastlingRights::can_castle"]
+    // #[ignore = "TODO: implement CastlingRights::can_castle"]
     fn can_castle_selects_field() {
         let r = CastlingRights::initial();
         assert!(r.can_castle(false, true));
@@ -235,7 +297,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement CastlingRights::clear_kingside"]
+    // #[ignore = "TODO: implement CastlingRights::clear_kingside"]
     fn clear_kingside_only_that_side() {
         let mut r = CastlingRights::initial();
         r.clear_kingside(false);
@@ -245,7 +307,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement CastlingRights::clear_queenside"]
+    // #[ignore = "TODO: implement CastlingRights::clear_queenside"]
     fn clear_queenside_only_that_side() {
         let mut r = CastlingRights::initial();
         r.clear_queenside(true);
@@ -255,7 +317,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement CastlingRights::clear_all_for"]
+    // #[ignore = "TODO: implement CastlingRights::clear_all_for"]
     fn clear_all_for_one_color() {
         let mut r = CastlingRights::initial();
         r.clear_all_for(false);
@@ -264,7 +326,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement CastlingRights::update_on_move"]
+    // #[ignore = "TODO: implement CastlingRights::update_on_move"]
     fn update_on_move_strips_rights() {
         let mut r = CastlingRights::initial();
         // White king moves -> white loses both.
@@ -297,7 +359,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement GameState::advance_turn"]
+    // #[ignore = "TODO: implement GameState::advance_turn"]
     fn advance_turn_flips_and_counts_fullmove() {
         let mut s = GameState::initial();
         s.advance_turn(); // White -> Black, still move 1
@@ -309,7 +371,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement en-passant setters"]
+    // #[ignore = "TODO: implement en-passant setters"]
     fn en_passant_set_clear() {
         let mut s = GameState::initial();
         s.set_en_passant((4, 2));
@@ -319,7 +381,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "TODO: implement halfmove clock"]
+    // #[ignore = "TODO: implement halfmove clock"]
     fn halfmove_reset_bump() {
         let mut s = GameState::initial();
         s.bump_halfmove();

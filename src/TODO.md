@@ -70,14 +70,14 @@ Full status: `cargo test 2>&1 | grep -E "ignored|ok$" | head`.
 ### `src/game_state.rs` — small state, `&mut self`
 
 - [x] `CastlingRights::none/initial`, `GameState::new/initial/turn_is_black/turn_name` — done.
-- [ ] `can_castle(black, kingside) -> bool`
+- [x] `can_castle(black, kingside) -> bool`
   What: 4-way getter. Learn: `match (black, kingside)` tuple match.
-- [ ] `clear_kingside/clear_queenside/clear_all_for(&mut self, black)`
+- [x] `clear_kingside/clear_queenside/clear_all_for(&mut self, black)`
   What: set one/both flags false. Learn: `&mut self`, `if black {} else {}` mutation.
 - [ ] `advance_turn/set_en_passant/clear_en_passant/reset_halfmove/bump_halfmove`
   What: flip `turn_black`, fullmove+1 after Black; e.p. set/clear; clock reset/bump.
   Learn: mutation one-liners, `Option` assignment, `+= 1`. Decide e.p. clearing policy here vs `engine::make_move` and document it.
-- [ ] `update_on_move(mover_short, mover_black, from, captured_short, capture_square)`
+- [x] `update_on_move(mover_short, mover_black, from, captured_short, capture_square)`
   What: king move clears mover; rook from/to a1/h1/a8/h8 clears that corner.
   Learn: `&str` comparison, `Option<&str>`, tuple equality `(x,y) == (0,0)`.
   Hint: corners `a1=(0,0) h1=(7,0) a8=(0,7) h8=(7,7)`.
