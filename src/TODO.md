@@ -74,7 +74,7 @@ Full status: `cargo test 2>&1 | grep -E "ignored|ok$" | head`.
   What: 4-way getter. Learn: `match (black, kingside)` tuple match.
 - [x] `clear_kingside/clear_queenside/clear_all_for(&mut self, black)`
   What: set one/both flags false. Learn: `&mut self`, `if black {} else {}` mutation.
-- [ ] `advance_turn/set_en_passant/clear_en_passant/reset_halfmove/bump_halfmove`
+- [x] `advance_turn/set_en_passant/clear_en_passant/reset_halfmove/bump_halfmove`
   What: flip `turn_black`, fullmove+1 after Black; e.p. set/clear; clock reset/bump.
   Learn: mutation one-liners, `Option` assignment, `+= 1`. Decide e.p. clearing policy here vs `engine::make_move` and document it.
 - [x] `update_on_move(mover_short, mover_black, from, captured_short, capture_square)`

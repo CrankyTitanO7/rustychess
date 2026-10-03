@@ -148,31 +148,38 @@ impl CastlingRights {
         // TODO: implement rights stripping; stub does nothing so it compiles.
         // let _ = (mover_short, mover_black, from, captured_short, capture_square);
 
+        // Start corners: a1=(0,0) h1=(7,0) a8=(0,7) h8=(7,7).
+        const A1: (u8, u8) = (0, 0);
+        const H1: (u8, u8) = (7, 0);
+        const A8: (u8, u8) = (0, 7);
+        const H8: (u8, u8) = (7, 7);
+
         if mover_short == "K" {
-            // immediate disqualify if your king pieces move.
-            {self.clear_all_for(mover_black);}
-        } else {
-            // define rook squares
-            const A1:(u8, u8) = (0, 0); 
-            const A8:(u8, u8) = (7, 0);
-            const H1:(u8, u8)= (0, 7);
-            const H8:(u8, u8) = (7, 7);
-
-            if mover_short == "R" {
-                // if you moved your rook from a starting position
-                match from {
-                    A1 | H1=>{ self.clear_queenside(mover_black) }, 
-                    A8 | H8=>{ self.clear_kingside(mover_black) }, 
-                    _ => {} // otherwise do nothing
-                }
+            // King moved: mover loses both sides.
+            self.clear_all_for(mover_black);
+        } else if mover_short == "R" {
+            // Own rook left home: only that color's corner matters, so a
+            // wandering rook (e.g. White from a8) strips nothing.
+            match (mover_black, from) {
+                (false, A1) => self.clear_queenside(false),
+                (false, H1) => self.clear_kingside(false),
+                (true, A8) => self.clear_queenside(true),
+                (true, H8) => self.clear_kingside(true),
+                _ => {}
             }
+        }
 
-            if captured_short == Some("R") {
-                // if your rook has been captured
-                match capture_square.unwrap() {
-                    A1 | H1=>{ self.clear_queenside(mover_black) }, 
-                    A8 | H8=>{ self.clear_kingside(mover_black) }, 
-                    _ => {} // otherwise do nothing
+        // Captured rook on home: victim (derived from square, not mover)
+        // loses that side. Kept outside the king branch so KxR on a corner
+        // still strips the victim.
+        if captured_short == Some("R") {
+            if let Some(sq) = capture_square {
+                match sq {
+                    A1 => self.clear_queenside(false),
+                    H1 => self.clear_kingside(false),
+                    A8 => self.clear_queenside(true),
+                    H8 => self.clear_kingside(true),
+                    _ => {}
                 }
             }
         }
