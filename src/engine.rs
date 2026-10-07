@@ -93,20 +93,26 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
     ];
 
     // wasteful data. you should delete this if you end up not using it
-    let atkmvs: Vec<Move> = atk.clone().into_iter().flatten()
- .filter(|m| m.to.x as usize == x && m.to.y as usize == y)
- .collect();
-    let atkbool = atk.clone().map(|moves| moves.iter().any(|m| m.to.x as usize == x && m.to.y as usize ==y)); 
+    let atkmvs: Vec<(Move, String)> = atk.into_iter().flatten()
+  .filter(|m| m.to.x as usize == x && m.to.y as usize == y)
+  .map(|m| {
+    let short = board.board[m.from.y as usize][m.from.x as usize]
+      .as_ref()
+      .map(|p| p.name_short.clone())
+      .unwrap_or_default(); // `Piece::name_short: String` in `src/pieces.rs:5`
+    (m, short)
+  })
+  .collect();
 
-    let iter = 0;
-    for b in atkbool {
-        if b {
-            match iter {
-                // 0 => 
-            }
+    // let atkbool = atk.clone().map(|moves| moves.iter().any(|m| m.to.x as usize == x && m.to.y as usize ==y)); 
+
+    for mv in atkmvs {
+        if board.board[mv.0.to.x][mv.0.to.y].name_short == mv.1 {
+            return true;
         }
     }
-
+    
+    false
 
     // search column for attacking rook 
     // while (xy.0 < x) {
@@ -130,8 +136,7 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
     // }
     
     // _touch_board(board);
-    let _ = (x, y, by_black);
-    false
+    // let _ = (x, y, by_black);
 }
 
 /// Inputs: board + side. Output: `true` if that side's king is in check.
