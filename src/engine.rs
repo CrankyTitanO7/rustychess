@@ -30,9 +30,12 @@ fn _touch_board(b: &Board) {
 /// TODO: compare against `constants::XWIDTH/YWIDTH` as `i32`.
 /// Hint: all sliding/jump loops must call this before indexing.
 pub fn in_bounds(x: i32, y: i32) -> bool {
+    if 0 <= x&& x < 8 && 0 <= y && y < 8 {
+        true
+    } else {false}
     // TODO: implement; stub returns garbage so it compiles.
-    let _ = (x, y);
-    false
+    // let _ = (x, y);
+    // false
 }
 
 /// Inputs: board + side (`black: false`=White king, `true`=Black king).
@@ -41,8 +44,27 @@ pub fn in_bounds(x: i32, y: i32) -> bool {
 /// TODO: scan 8x8 for `name_short == "K"` with matching `color`.
 pub fn find_king(board: &Board, black: bool) -> Option<(usize, usize)> {
     // TODO: implement scan; stub returns None so it compiles.
-    _touch_board(board);
-    let _ = black;
+    // use crate::pieces::Piece;
+    use crate::constants::XWIDTH as xmax; use crate::constants::YWIDTH as ymax;
+    for x in 0..xmax {
+        for y in 0..ymax {
+            // let ktemp = Some (Piece {
+            //     color: !black, 
+            //     name_long: "king".to_string(), 
+            //     name_short: "K".to_string(), 
+            //     symbol: if !black {"♚".to_string()} else {"♔".to_string()}, 
+            //     locx : x as u8, 
+            //     locy : y as u8
+            // }); 
+            if let Some(cur) = &board.board[x.clone()][y.clone()] {
+                if cur.name_short == "K" {
+                    return Some((x, y));
+                }
+            }
+            
+        }
+    }
+
     None
 }
 
@@ -56,7 +78,58 @@ pub fn find_king(board: &Board, black: bool) -> Option<(usize, usize)> {
 ///   attack from `(x-1,y+1)/(x+1,y+1)`. Use `in_bounds` for every step.
 pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
     // TODO: implement; stub returns garbage so it compiles.
-    _touch_board(board);
+
+    // define tuple iterator;
+    // let mut xy = (0, 0); 
+    // let b = &board.board;
+
+    // calculates every possible reversible move (aka not pawns)
+    let atk = [
+        king_moves(board, x, y)     , 
+        queen_moves(board, x, y)    ,
+        bishop_moves(board, x, y)   , 
+        knight_moves(board, x, y)   , 
+        rook_moves(board, x, y)     , 
+    ];
+
+    // wasteful data. you should delete this if you end up not using it
+    let atkmvs: Vec<Move> = atk.clone().into_iter().flatten()
+ .filter(|m| m.to.x as usize == x && m.to.y as usize == y)
+ .collect();
+    let atkbool = atk.clone().map(|moves| moves.iter().any(|m| m.to.x as usize == x && m.to.y as usize ==y)); 
+
+    let iter = 0;
+    for b in atkbool {
+        if b {
+            match iter {
+                // 0 => 
+            }
+        }
+    }
+
+
+    // search column for attacking rook 
+    // while (xy.0 < x) {
+    //     while (xy.1 < y) {
+    //         // let p = b[x][y].as_ref();
+    //         // if !(p.is_none()) {
+    //         //     let p = p.unwrap(); // leave inside conditional b/c panic if p.isnone() and p.unwrap
+    //         //     // use crate::constants as C;
+    //         //     match p.name_short {
+    //         //         String::from("K") => ,
+    //         //         String::from("Q") => ,
+    //         //         String::from("N") => ,
+    //         //         String::from("B") => ,
+    //         //         String::from("R") => ,
+    //         //         _ => 
+    //         //     }
+    //         // }
+    //         xy.1 += 1;
+    //     }
+    //     xy.0 += 1;
+    // }
+    
+    // _touch_board(board);
     let _ = (x, y, by_black);
     false
 }
