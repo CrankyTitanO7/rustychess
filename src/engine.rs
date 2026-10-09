@@ -93,33 +93,46 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
     ];
 
     // wasteful data. you should delete this if you end up not using it
-    let atkmvs: Vec<(Move, String)> = atk.into_iter().flatten()
-  .filter(|m| m.to.x as usize == x && m.to.y as usize == y)
-  .map(|m| {
-    let short = board.board[m.from.y as usize][m.from.x as usize]
-      .as_ref()
-      .map(|p| p.name_short.clone())
-      .unwrap_or_default(); // `Piece::name_short: String` in `src/pieces.rs:5`
-    (m, short)
-  })
+    // fixed: moves go *from* (x,y) outward, so destinations hold the
+    // candidate attackers (old filter kept only m.to == (x,y), always empty).
+    // expected piece kind(s) parallel to `atk` above.
+    let kinds: [&[&str]; 5] = [&["K"], &["Q"], &["B", "Q"], &["N"], &["R", "Q"]];
+    let atkmvs: Vec<(Move, String)> = atk.into_iter().enumerate().flat_map(|(i, moves)| {
+      let want = kinds[i];
+      moves.into_iter().filter_map(move |m| {
+        let sq = board.board[m.to.y as usize][m.to.x as usize].as_ref()?;
+        if sq.color == by_black && want.contains(&sq.name_short.as_str()) {
+          Some((m, sq.name_short.clone()))
+        } else {
+          None
+        }
+      })
+    })
   .collect();
 
     // let atkbool = atk.clone().map(|moves| moves.iter().any(|m| m.to.x as usize == x && m.to.y as usize ==y)); 
 
     for mv in atkmvs {
-        if board.board[mv.0.to.x][mv.0.to.y].name_short == mv.1 {
+        if board.board[mv.0.to.y as usize][mv.0.to.x as usize].as_ref().map(|p| &p.name_short) == Some(&mv.1) {
             return true;
         }
     }
 
     // non-reversible (pawn) case:
-    if (by_black && (board.board[x-1][y-1].unwrap().name_short == "P" 
-                    || board.board[x+1][y-1].unwrap().name_short == "P")) {
-        true; 
-    }
-    if (!by_black && (board.board[x-1][y+1].unwrap().name_short == "P" 
-                        || board.board[x+1][y+1].unwrap().name_short == "P")) {
-        true;
+    // fixed: old code had [x][y] order swapped, `x-1` underflowed at edge,
+    // `.unwrap()` panicked on empty squares, `true;` never returned, and the
+    // y offsets were swapped (white attacks from y-1, black from y+1).
+    // white attackers sit at y-1, black at y+1.
+    let pawn_dy: i32 = if by_black { 1 } else { -1 };
+    for dx in [-1, 1] {
+        let (px, py) = (x as i32 + dx, y as i32 + pawn_dy);
+        if in_bounds(px, py) {
+            if let Some(p) = board.board[py as usize][px as usize].as_ref() {
+                if p.name_short == "P" && p.color == by_black {
+                    return true;
+                }
+            }
+        }
     }
     
     false
