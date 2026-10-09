@@ -111,32 +111,18 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
             return true;
         }
     }
+
+    // non-reversible (pawn) case:
+    if (by_black && (board.board[x-1][y-1].unwrap().name_short == "P" 
+                    || board.board[x+1][y-1].unwrap().name_short == "P")) {
+        true; 
+    }
+    if (!by_black && (board.board[x-1][y+1].unwrap().name_short == "P" 
+                        || board.board[x+1][y+1].unwrap().name_short == "P")) {
+        true;
+    }
     
     false
-
-    // search column for attacking rook 
-    // while (xy.0 < x) {
-    //     while (xy.1 < y) {
-    //         // let p = b[x][y].as_ref();
-    //         // if !(p.is_none()) {
-    //         //     let p = p.unwrap(); // leave inside conditional b/c panic if p.isnone() and p.unwrap
-    //         //     // use crate::constants as C;
-    //         //     match p.name_short {
-    //         //         String::from("K") => ,
-    //         //         String::from("Q") => ,
-    //         //         String::from("N") => ,
-    //         //         String::from("B") => ,
-    //         //         String::from("R") => ,
-    //         //         _ => 
-    //         //     }
-    //         // }
-    //         xy.1 += 1;
-    //     }
-    //     xy.0 += 1;
-    // }
-    
-    // _touch_board(board);
-    // let _ = (x, y, by_black);
 }
 
 /// Inputs: board + side. Output: `true` if that side's king is in check.
