@@ -162,57 +162,74 @@ pub fn king_in_check(board: &Board, black: bool) -> bool {
 ///   piece OR e.p. target (with `is_en_passant=true`, dest empty).
 /// Hint: needs `board.state.en_passant`; see `game_state.rs` docs.
 pub fn pawn_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
-    // TODO: implement; stub returns empty so it compiles.
-    let mut initial_moves =  Vec::<Move>::new(); 
     use crate::mv::Coord;
-    let from = Coord {
-        x : x as u8,
-        y : y as u8
+
+    let mut initial_moves = Vec::<Move>::new();
+    // Empty square (or non-pawn): no moves.
+    let Some(pawn) = board.board[y][x].as_ref() else {
+        return initial_moves;
     };
-    let mycol = board.board[x][y].unwrap().color;
-
-    let to = Coord {
-        x: x as u8, 
-        y: (y+1) as u8
-    }
-    let to_tl= Coord {
-        x: (x -1) as u8,
-        y: (y + 1) as u8
-    }
-    let to_tr = Coord {
-        x: (x + 1) as u8,
-        y: (y +1 )as u8
+    if pawn.name_short != "P" {
+        return initial_moves;
     }
 
-    let candidate_moves = [
-        to, 
-        if board.board[to_tl.x as usize][to_tl.y as usize].unwrap().color != mycol {
-            to_tl
-        } else {_}, 
-        if board.board[to_tr.x as usize][to_tr.y as usize].unwrap().color != mycol {
-            to_tr
-        } else {_}
-    ]; 
+    let from = Coord { x: x as u8, y: y as u8 };
+    let mycol = pawn.color;
+    let dir: i32 = if mycol { -1 } else { 1 };
+    let start_rank: usize = if mycol { 6 } else { 1 };
+    let last_rank: usize = if mycol { 0 } else { 7 };
 
-    let mut prom = None;
-    if y + 1 == 8 {
-        use crate::constants;
-        prom = Some(constants::ALG[1..5]);
-    }
-    for promotion in prom {
-        for to in candidate_moves {
+    // Push a destination, expanding promotions into N/B/R/Q.
+    let mut add = |to: Coord, is_ep: bool| {
+        if to.y as usize == last_rank {
+            for p in ['N', 'B', 'R', 'Q'] {
+                initial_moves.push(Move {
+                    from,
+                    to,
+                    promotion: Some(p),
+                    is_castle: false,
+                    is_en_passant: false,
+                });
+            }
+        } else {
             initial_moves.push(Move {
-                from, 
-                to, 
-                promotion, 
-                is_castle: false, 
-                is_en_passant: false
-            })
+                from,
+                to,
+                promotion: None,
+                is_castle: false,
+                is_en_passant: is_ep,
+            });
         }
     };
-    
-    initial_moves
 
+    // Single push; double push only from the start rank with both squares empty.
+    let one_y = y as i32 + dir;
+    if in_bounds(x as i32, one_y) && board.board[one_y as usize][x].is_none() {
+        add(Coord { x: x as u8, y: one_y as u8 }, false);
+        if y == start_rank {
+            let two_y = y as i32 + 2 * dir;
+            if board.board[two_y as usize][x].is_none() {
+                add(Coord { x: x as u8, y: two_y as u8 }, false);
+            }
+        }
+    }
+
+    // Diagonal captures: enemy piece, or the en-passant target square.
+    for dx in [-1, 1] {
+        let (tx, ty) = (x as i32 + dx, y as i32 + dir);
+        if !in_bounds(tx, ty) {
+            continue;
+        }
+        let (tx, ty) = (tx as usize, ty as usize);
+        let target = board.board[ty][tx].as_ref();
+        let is_ep = target.is_none() && board.state.en_passant == Some((tx as u8, ty as u8));
+        let is_enemy = matches!(target, Some(p) if p.color != mycol);
+        if is_enemy || is_ep {
+            add(Coord { x: tx as u8, y: ty as u8 }, is_ep);
+        }
+    }
+
+    initial_moves
 }
 
 /// Inputs: board + knight square. Output: up-to-8 L-jumps landing on empty

@@ -18,7 +18,7 @@ fn engine_stubs_callable_without_panic() {
     let _ = engine::find_king(&b, false);
     let _ = engine::is_attacked(&b, 4, 3, true);
     let _ = engine::king_in_check(&b, false);
-    assert!(engine::pawn_moves(&b, 4, 1).is_empty()); // stub: empty for now
+    assert_eq!(engine::pawn_moves(&b, 4, 1).len(), 2); // e2e3 + e2e4
     assert!(engine::knight_moves(&b, 1, 0).is_empty());
     assert!(engine::pseudo_moves_for(&b, 1, 0).is_empty());
     assert!(engine::legal_moves_for(&b, 1, 0).is_empty());
