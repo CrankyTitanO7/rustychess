@@ -57,7 +57,7 @@ pub fn find_king(board: &Board, black: bool) -> Option<(usize, usize)> {
             //     locy : y as u8
             // }); 
             if let Some(cur) = &board.board[x.clone()][y.clone()] {
-                if cur.name_short == "K" {
+                if cur.name_short == "K" && cur.color == black {
                     return Some((x, y));
                 }
             }
@@ -143,8 +143,13 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
 /// Hint: used by move filtering and `game_result`.
 pub fn king_in_check(board: &Board, black: bool) -> bool {
     // TODO: implement; stub returns garbage so it compiles.
-    _touch_board(board);
-    let _ = black;
+    // _touch_board(board);
+    // let _ = black;
+    let kingpos = find_king(board, black); 
+    if kingpos.is_none() {return false}; // prevent a panic! if false;
+    if is_attacked(board, kingpos.unwrap().0, kingpos.unwrap().1, black) {
+        return true;
+    }
     false
 }
 
@@ -158,9 +163,56 @@ pub fn king_in_check(board: &Board, black: bool) -> bool {
 /// Hint: needs `board.state.en_passant`; see `game_state.rs` docs.
 pub fn pawn_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
     // TODO: implement; stub returns empty so it compiles.
-    _touch_board(board);
-    let _ = (x, y);
-    Vec::new()
+    let mut initial_moves =  Vec::<Move>::new(); 
+    use crate::mv::Coord;
+    let from = Coord {
+        x : x as u8,
+        y : y as u8
+    };
+    let mycol = board.board[x][y].unwrap().color;
+
+    let to = Coord {
+        x: x as u8, 
+        y: (y+1) as u8
+    }
+    let to_tl= Coord {
+        x: (x -1) as u8,
+        y: (y + 1) as u8
+    }
+    let to_tr = Coord {
+        x: (x + 1) as u8,
+        y: (y +1 )as u8
+    }
+
+    let candidate_moves = [
+        to, 
+        if board.board[to_tl.x as usize][to_tl.y as usize].unwrap().color != mycol {
+            to_tl
+        } else {_}, 
+        if board.board[to_tr.x as usize][to_tr.y as usize].unwrap().color != mycol {
+            to_tr
+        } else {_}
+    ]; 
+
+    let mut prom = None;
+    if y + 1 == 8 {
+        use crate::constants;
+        prom = Some(constants::ALG[1..5]);
+    }
+    for promotion in prom {
+        for to in candidate_moves {
+            initial_moves.push(Move {
+                from, 
+                to, 
+                promotion, 
+                is_castle: false, 
+                is_en_passant: false
+            })
+        }
+    };
+    
+    initial_moves
+
 }
 
 /// Inputs: board + knight square. Output: up-to-8 L-jumps landing on empty
