@@ -236,10 +236,50 @@ pub fn pawn_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
 ///   or enemy squares (ignores self-check).
 /// TODO: offsets `[(±1,±2),(±2,±1)]` + `in_bounds` + own-piece rejection.
 pub fn knight_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
+    use crate::mv::Coord;
     // TODO: implement; stub returns empty so it compiles.
-    _touch_board(board);
-    let _ = (x, y);
-    Vec::new()
+    // _touch_board(board);
+    // let _ = (x, y);
+    let candidates: [(i8, i8); 8] = [
+        (-1, 2), 
+        (-1, -2),
+        (-2, 1),
+        (-2, -1), 
+        (1, 2), 
+        (1, -2), 
+        (2, 1), 
+        (2, -1)
+    ];
+
+    let mut moves: Vec<Move> = Vec::new(); 
+    candidates.iter().for_each(|cand| {
+        let i_x:i32 = x as i32 + cand.0 as i32; 
+        let i_y:i32 = y as i32 + cand.1 as i32;
+        if !in_bounds(i_x, i_y) {return;}; 
+        let as_c = Coord {
+            x:i_x as u8, 
+            y:i_y as u8
+        }; 
+        moves.push(
+                {
+                    let from = Coord {x: x as u8, y: y as u8}; 
+                    let promotion: Option<char> = None;
+                    let is_castle = false;
+                    let is_en_passant = false;
+                    Move {
+                        from,
+                        to: as_c, 
+                        promotion, 
+                        is_castle,
+                        is_en_passant
+                    }
+                }
+            )
+        }
+    );
+
+    moves
+    // Vec::new()
 }
 
 /// Inputs: board + bishop square. Output: diagonal slides (ignores self-check).
