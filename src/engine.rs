@@ -30,9 +30,11 @@ fn _touch_board(b: &Board) {
 /// TODO: compare against `constants::XWIDTH/YWIDTH` as `i32`.
 /// Hint: all sliding/jump loops must call this before indexing.
 pub fn in_bounds(x: i32, y: i32) -> bool {
-    if 0 <= x&& x < 8 && 0 <= y && y < 8 {
+    if 0 <= x && x < 8 && 0 <= y && y < 8 {
         true
-    } else {false}
+    } else {
+        false
+    }
     // TODO: implement; stub returns garbage so it compiles.
     // let _ = (x, y);
     // false
@@ -45,23 +47,23 @@ pub fn in_bounds(x: i32, y: i32) -> bool {
 pub fn find_king(board: &Board, black: bool) -> Option<(usize, usize)> {
     // TODO: implement scan; stub returns None so it compiles.
     // use crate::pieces::Piece;
-    use crate::constants::XWIDTH as xmax; use crate::constants::YWIDTH as ymax;
+    use crate::constants::XWIDTH as xmax;
+    use crate::constants::YWIDTH as ymax;
     for x in 0..xmax {
         for y in 0..ymax {
             // let ktemp = Some (Piece {
-            //     color: !black, 
-            //     name_long: "king".to_string(), 
-            //     name_short: "K".to_string(), 
-            //     symbol: if !black {"♚".to_string()} else {"♔".to_string()}, 
-            //     locx : x as u8, 
+            //     color: !black,
+            //     name_long: "king".to_string(),
+            //     name_short: "K".to_string(),
+            //     symbol: if !black {"♚".to_string()} else {"♔".to_string()},
+            //     locx : x as u8,
             //     locy : y as u8
-            // }); 
+            // });
             if let Some(cur) = &board.board[x.clone()][y.clone()] {
                 if cur.name_short == "K" && cur.color == black {
                     return Some((x, y));
                 }
             }
-            
         }
     }
 
@@ -80,16 +82,16 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
     // TODO: implement; stub returns garbage so it compiles.
 
     // define tuple iterator;
-    // let mut xy = (0, 0); 
+    // let mut xy = (0, 0);
     // let b = &board.board;
 
     // calculates every possible reversible move (aka not pawns)
     let atk = [
-        king_moves(board, x, y)     , 
-        queen_moves(board, x, y)    ,
-        bishop_moves(board, x, y)   , 
-        knight_moves(board, x, y)   , 
-        rook_moves(board, x, y)     , 
+        king_moves(board, x, y),
+        queen_moves(board, x, y),
+        bishop_moves(board, x, y),
+        knight_moves(board, x, y),
+        rook_moves(board, x, y),
     ];
 
     // wasteful data. you should delete this if you end up not using it
@@ -97,23 +99,30 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
     // candidate attackers (old filter kept only m.to == (x,y), always empty).
     // expected piece kind(s) parallel to `atk` above.
     let kinds: [&[&str]; 5] = [&["K"], &["Q"], &["B", "Q"], &["N"], &["R", "Q"]];
-    let atkmvs: Vec<(Move, String)> = atk.into_iter().enumerate().flat_map(|(i, moves)| {
-      let want = kinds[i];
-      moves.into_iter().filter_map(move |m| {
-        let sq = board.board[m.to.y as usize][m.to.x as usize].as_ref()?;
-        if sq.color == by_black && want.contains(&sq.name_short.as_str()) {
-          Some((m, sq.name_short.clone()))
-        } else {
-          None
-        }
-      })
-    })
-  .collect();
+    let atkmvs: Vec<(Move, String)> = atk
+        .into_iter()
+        .enumerate()
+        .flat_map(|(i, moves)| {
+            let want = kinds[i];
+            moves.into_iter().filter_map(move |m| {
+                let sq = board.board[m.to.y as usize][m.to.x as usize].as_ref()?;
+                if sq.color == by_black && want.contains(&sq.name_short.as_str()) {
+                    Some((m, sq.name_short.clone()))
+                } else {
+                    None
+                }
+            })
+        })
+        .collect();
 
-    // let atkbool = atk.clone().map(|moves| moves.iter().any(|m| m.to.x as usize == x && m.to.y as usize ==y)); 
+    // let atkbool = atk.clone().map(|moves| moves.iter().any(|m| m.to.x as usize == x && m.to.y as usize ==y));
 
     for mv in atkmvs {
-        if board.board[mv.0.to.y as usize][mv.0.to.x as usize].as_ref().map(|p| &p.name_short) == Some(&mv.1) {
+        if board.board[mv.0.to.y as usize][mv.0.to.x as usize]
+            .as_ref()
+            .map(|p| &p.name_short)
+            == Some(&mv.1)
+        {
             return true;
         }
     }
@@ -134,7 +143,7 @@ pub fn is_attacked(board: &Board, x: usize, y: usize, by_black: bool) -> bool {
             }
         }
     }
-    
+
     false
 }
 
@@ -145,8 +154,10 @@ pub fn king_in_check(board: &Board, black: bool) -> bool {
     // TODO: implement; stub returns garbage so it compiles.
     // _touch_board(board);
     // let _ = black;
-    let kingpos = find_king(board, black); 
-    if kingpos.is_none() {return false}; // prevent a panic! if false;
+    let kingpos = find_king(board, black);
+    if kingpos.is_none() {
+        return false;
+    }; // prevent a panic! if false;
     if is_attacked(board, kingpos.unwrap().0, kingpos.unwrap().1, black) {
         return true;
     }
@@ -173,7 +184,10 @@ pub fn pawn_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
         return initial_moves;
     }
 
-    let from = Coord { x: x as u8, y: y as u8 };
+    let from = Coord {
+        x: x as u8,
+        y: y as u8,
+    };
     let mycol = pawn.color;
     let dir: i32 = if mycol { -1 } else { 1 };
     let start_rank: usize = if mycol { 6 } else { 1 };
@@ -205,11 +219,23 @@ pub fn pawn_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
     // Single push; double push only from the start rank with both squares empty.
     let one_y = y as i32 + dir;
     if in_bounds(x as i32, one_y) && board.board[one_y as usize][x].is_none() {
-        add(Coord { x: x as u8, y: one_y as u8 }, false);
+        add(
+            Coord {
+                x: x as u8,
+                y: one_y as u8,
+            },
+            false,
+        );
         if y == start_rank {
             let two_y = y as i32 + 2 * dir;
             if board.board[two_y as usize][x].is_none() {
-                add(Coord { x: x as u8, y: two_y as u8 }, false);
+                add(
+                    Coord {
+                        x: x as u8,
+                        y: two_y as u8,
+                    },
+                    false,
+                );
             }
         }
     }
@@ -225,7 +251,13 @@ pub fn pawn_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
         let is_ep = target.is_none() && board.state.en_passant == Some((tx as u8, ty as u8));
         let is_enemy = matches!(target, Some(p) if p.color != mycol);
         if is_enemy || is_ep {
-            add(Coord { x: tx as u8, y: ty as u8 }, is_ep);
+            add(
+                Coord {
+                    x: tx as u8,
+                    y: ty as u8,
+                },
+                is_ep,
+            );
         }
     }
 
@@ -241,42 +273,44 @@ pub fn knight_moves(board: &Board, x: usize, y: usize) -> Vec<Move> {
     // _touch_board(board);
     // let _ = (x, y);
     let candidates: [(i8, i8); 8] = [
-        (-1, 2), 
+        (-1, 2),
         (-1, -2),
         (-2, 1),
-        (-2, -1), 
-        (1, 2), 
-        (1, -2), 
-        (2, 1), 
-        (2, -1)
+        (-2, -1),
+        (1, 2),
+        (1, -2),
+        (2, 1),
+        (2, -1),
     ];
 
-    let mut moves: Vec<Move> = Vec::new(); 
+    let mut moves: Vec<Move> = Vec::new();
     candidates.iter().for_each(|cand| {
-        let i_x:i32 = x as i32 + cand.0 as i32; 
-        let i_y:i32 = y as i32 + cand.1 as i32;
-        if !in_bounds(i_x, i_y) {return;}; 
+        let i_x: i32 = x as i32 + cand.0 as i32;
+        let i_y: i32 = y as i32 + cand.1 as i32;
+        if !in_bounds(i_x, i_y) {
+            return;
+        };
         let as_c = Coord {
-            x:i_x as u8, 
-            y:i_y as u8
-        }; 
-        moves.push(
-                {
-                    let from = Coord {x: x as u8, y: y as u8}; 
-                    let promotion: Option<char> = None;
-                    let is_castle = false;
-                    let is_en_passant = false;
-                    Move {
-                        from,
-                        to: as_c, 
-                        promotion, 
-                        is_castle,
-                        is_en_passant
-                    }
-                }
-            )
-        }
-    );
+            x: i_x as u8,
+            y: i_y as u8,
+        };
+        moves.push({
+            let from = Coord {
+                x: x as u8,
+                y: y as u8,
+            };
+            let promotion: Option<char> = None;
+            let is_castle = false;
+            let is_en_passant = false;
+            Move {
+                from,
+                to: as_c,
+                promotion,
+                is_castle,
+                is_en_passant,
+            }
+        })
+    });
 
     moves
     // Vec::new()
